@@ -1,0 +1,13 @@
+# mac
+.DS_Store
+
+# python
+.venv/
+__pycache__/
+.ipynb_checkpoints/
+
+# data + outputs (keep repo lightweight)
+data/raw/
+data/processed/
+outputs/
+logs/runs/
