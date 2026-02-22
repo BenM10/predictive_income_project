@@ -16,9 +16,9 @@ class CountryBinner(BaseEstimator, TransformerMixin):
         return self
     
     def transform(self, X):
-        X = pd.DataFrame(X)
-        # Assuming the first column is native-country
-        return X.apply(lambda col: col.map(lambda x: 'United-States' if x == 'United-States' else 'Other'))
+        X = np.asarray(X).reshape(-1)
+        binned = np.where(X == 'United-States', 'United-States', 'Other')
+        return binned.reshape(-1, 1)
 
 def get_preprocessing_pipeline(numeric_features, categorical_features, scale=False):
     """
@@ -107,21 +107,3 @@ def load_and_split_data(filepath, target_col='income', test_size=0.1, val_size=0
     
     return df_train, df_val, df_test
 
-if __name__ == "__main__":
-    # Example usage/smoke test
-    DATA_PATH = "data/processed/adult_cleaned.csv"
-    try:
-        train, val, test = load_and_split_data(DATA_PATH)
-        print(f"Data split successfully:")
-        print(f"Train: {train.shape}, Val: {val.shape}, Test: {test.shape}")
-        
-        num_cols = ['age', 'education-num', 'capital-gain', 'capital-loss', 'hours-per-week']
-        cat_cols = ['workclass', 'education', 'marital-status', 'occupation', 'relationship', 'race', 'sex', 'native-country']
-        
-        preprocessor = get_preprocessing_pipeline(num_cols, cat_cols, scale=True)
-        X_train = train.drop('income', axis=1)
-        X_train_proc = preprocessor.fit_transform(X_train)
-        print(f"Preprocessing completed. Processed shape: {X_train_proc.shape}")
-        
-    except FileNotFoundError:
-        print(f"Data file not found at {DATA_PATH}. Run data loading script first.")
