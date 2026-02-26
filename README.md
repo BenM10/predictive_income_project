@@ -5,6 +5,8 @@ This project implements a binary classification pipeline to predict whether an i
 ## Dataset
 The UCI Adult dataset (the "Census Income" dataset) contains demographic and employment data for over 48,000 individuals. The target variable is `income`, a binary feature indicating whether an individual earns more than $50K per year.
 
+Source: https://archive.ics.uci.edu/ml/datasets/adult
+
 ## Model Performance
 The final selected model is a **HistGradientBoostingClassifier**, tuned via grid search on the training set.
 
@@ -30,14 +32,36 @@ The project follows a structured modelling lifecycle:
 - `logs/`: High-level decision logs (`agent_decisions.md`).
 - `outputs/figures/`: Visualizations generated during the analysis.
 
+## Dependencies
+Key Python Libraries:
+- pandas
+- numpy
+- scikit-learn
+- matplotlib
+- seaborn
+- jupyter
+
+Install via:
+pip install -r requirements.txt
+
 ## Reproducibility
-To reproduce the results, install the dependencies and execute the notebooks in numerical order. Experimental consistency is maintained throughout using a fixed seed (`random_state=42`).
+To reproduce results:
+1. Clone the repository.
+2. Install dependencies: `pip install -r requirements.txt`
+3. Place the Adult dataset files in 'data/raw'
+4. Run the notebooks in order:
+    - `01_load_data.ipynb`
+    - `02_eda.ipynb`
+    - `03_preprocessing.ipynb`
+    - `04_models_baselines.ipynb`
+    - `05_ensembles_and_advanced.ipynb`
+    - `06_exploratory_structure.ipynb`
 
-1. `01_load_data.ipynb`
-2. `02_eda.ipynb`
-3. `03_preprocessing.ipynb`
-4. `04_models_baselines.ipynb`
-5. `05_ensembles_and_advanced.ipynb`
-6. `06_exploratory_structure.ipynb`
+All experiments run with a fixed 'random_state=42' for reproducibility.
 
-Full technical logs and modelling choices are documented in the notebooks and `logs/agent_decisions.md`.
+## Agent Collaboration
+
+This project was developed using an agent-based workflow (Antigravity).
+Key modelling decisions and agent verification steps are documented in 'logs/agent_decisions.md'.
+
+Final results and conclusions reflect manual verification and critical evaluation.
