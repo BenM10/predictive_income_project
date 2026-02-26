@@ -27,10 +27,11 @@ The project follows a structured modelling lifecycle:
 
 ## Project Structure
 - `data/`: Raw and processed CSV files.
-- `notebooks/`: Sequential analysis from data loading to structural exploration.
-- `src/`: Reusable preprocessing and utility modules.
 - `logs/`: High-level decision logs (`agent_decisions.md`).
+- `notebooks/`: Sequential analysis from data loading to structural exploration.
 - `outputs/figures/`: Visualizations generated during the analysis.
+- `report/`: Final report and presentation.
+- `src/`: Reusable preprocessing and utility modules.
 
 ## Dependencies
 Key Python Libraries:
