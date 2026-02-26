@@ -3,7 +3,7 @@
 This project implements a binary classification pipeline to predict whether an individual's annual income exceeds $50,000 using the UCI Adult Census dataset. The analysis explores feature engineering, baseline modelling, and advanced ensemble methods to achieve high predictive performance. A final exploratory phase investigates the underlying data structure through dimensionality reduction and clustering.
 
 ## Dataset
-The UCI Adult dataset (also known as the "Census Income" dataset) contains demographic and employment data for over 48,000 individuals. The target variable is `income`, a binary feature indicating whether an individual earns more than $50K per year.
+The UCI Adult dataset (the "Census Income" dataset) contains demographic and employment data for over 48,000 individuals. The target variable is `income`, a binary feature indicating whether an individual earns more than $50K per year.
 
 ## Model Performance
 The final selected model is a **HistGradientBoostingClassifier**, tuned via grid search on the training set.
