@@ -1,4 +1,6 @@
-# Executive Summary
+# Predictive Income Analysis
+
+## Executive Summary
 
 This project examines binary income classification using the UCI Adult (1994 US Census) dataset. The objective is to predict whether an individual’s annual income exceeds $50,000 based on demographic and employment-related attributes. Such classification problems are common in socioeconomic research and financial risk modelling, where income level serves as a proxy for economic stability.
 
@@ -8,44 +10,33 @@ HistGradientBoostingClassifier achieved the strongest validation performance, wi
 
 ## 1. Obtain a Dataset and Frame the Predictive Problem
 
-### 1.1 Dataset Selection and Problem Definition
-This project uses the UCI Adult dataset, derived from the 1994 US Census, to address a supervised binary income classification task. The objective is to predict whether an individual’s annual income exceeds $50,000 using demographic and employment-related attributes. In 1994 terms, this threshold equates to roughly $110,000 in 2026 dollars, indicating that the classification boundary represents a comparatively high real income level. Income classification problems of this type are common in socioeconomic analysis and risk modelling, where income serves as a proxy for economic stability.
+This project uses the UCI Adult dataset, derived from the 1994 US Census, to address a supervised binary income classification task. The objective is to predict whether an individual’s annual income exceeds $50,000 using demographic and employment-related attributes. In 1994 terms, this threshold corresponds to roughly $110,000 in 2026 dollars, meaning the classification boundary represents a comparatively high real income level. Such classification problems are common in applied socioeconomic analysis and financial risk modelling, where income acts as a proxy for economic stability.
 
-### 1.2 Target Variable and Success Metrics
-The problem is formulated as supervised binary classification. Given the class imbalance in the dataset (approximately 76% ≤50K vs 24% >50K), overall accuracy alone is not an informative measure of performance. The primary evaluation metric is ROC AUC, which measures how well the model distinguishes between the two classes across all possible classification thresholds rather than relying on a single cut-off. This is complemented by the F1-score for the >50K class to balance precision and recall and ensure minority-class performance is adequately captured.
+The dataset is imbalanced, with approximately 76% of individuals earning ≤$50K and 24% earning above this threshold. For this reason, overall accuracy is not an informative standalone metric; a model predicting only the majority class would appear strong while failing to identify higher earners. The primary evaluation metric is therefore ROC AUC, which assesses how effectively the model ranks higher-income individuals above lower-income individuals across possible classification thresholds. This is complemented by the F1-score for the >50K class to ensure minority-class performance is not obscured.
 
-### 1.3 Assumptions and Limitations
-Several limitations are inherent in the dataset. First, the data reflects labour market conditions from 1994 and therefore has limited direct applicability to contemporary economic environments. Second, the fixed binary income threshold restricts modelling flexibility and prevents more granular regression-based analysis. Third, as Census data is self-reported, measurement error is possible. The dataset provides only a cross-sectional snapshot and does not include information on income or employment trajectories over time. Finally, the observational structure of the data prevents causal interpretation.
+Several limitations shape the scope of the analysis. The data reflects labour market conditions from 1994 and has limited direct applicability to contemporary contexts. The binary threshold constrains modelling flexibility and prevents regression-based approaches. As Census data is self-reported, measurement error is possible, and the cross-sectional design does not permit causal interpretation.
 
-### 1.4 Agent Planning and Verification Strategy
-The project was conducted using the Antigravity agent tool as a collaborative assistant. The agent was unable to reliably edit .ipynb files in place, requiring code to be generated separately and inserted manually. As a result, the workflow was modularised into six structured notebooks, each corresponding to a defined analytical stage. Prompts were rigorously planned in advance, with explicit specification of model structure, evaluation metrics, and hyperparameter boundaries. Sanity checks included verifying class distributions, confirming skew in capital-gain variables prior to transformation, and ensuring no unexpected missing values remained after preprocessing. Outputs were manually validated through EDA sanity checks, metric verification, and explicit prevention of data leakage by fitting preprocessing exclusively on training data. Reproducibility was maintained through a fixed random_state = 42 across all experiments.
+The workflow was designed around the Antigravity agent as a structured collaborator. The analysis was modularised into six notebooks to allow discrete components to be generated, reviewed, and integrated with minimal modification. Prompts specified evaluation criteria and modelling constraints in advance, and outputs were manually verified through distribution checks and explicit leakage prevention (preprocessing fitted only on training data). Reproducibility was maintained using random_state = 42.
 
-## 2. Explore the Data to Gain Insights
+## 2. Data Exploration and Insights
 
-Exploratory data analysis was conducted on the cleaned dataset comprising 48,842 observations and fourteen primary features. The aim was to identify structural characteristics, predictive signals, and potential modelling risks prior to formal preprocessing.
-
-### 2.1 Class Imbalance and Target Distribution
-Figure 1 displays the distribution of the income target variable. Approximately 76% of individuals earn ≤$50,000, while 24% exceed this threshold. This imbalance presents a clear modelling risk: a classifier predicting only the majority class would achieve superficially high accuracy while failing to meaningfully identify high-income individuals. The imbalance therefore motivated the prioritisation of ROC AUC and minority-class F1-score in subsequent evaluation.
+Exploratory analysis was conducted on the cleaned dataset of 48,842 observations and fourteen primary features to identify structural patterns and modelling risks. Figure 1 illustrates the distribution of the income target, with approximately 76% of individuals earning ≤$50K and 24% earning above this threshold.
 
 ![Figure 1: Class Imbalance](outputs/figures/eda_target_distribution.png)
 
-### 2.2 Distributional Characteristics and Feature Signals
-The capital-gain variable exhibited extreme right-skewness (Figure 2). The majority of individuals reported zero capital gains, while a small subset displayed very large positive values. This heavy-tailed structure indicated that raw-scale modelling would be dominated by outliers, motivating the use of a log(1+x) transformation during preprocessing.
+Several features exhibit distributional characteristics with direct modelling implications. The capital-gain variable is extremely right-skewed (Figure 2): most individuals report zero gains, while a small minority exhibit very large values. Without transformation, such heavy tails would disproportionately influence model fitting. This motivated the use of a log(1+x) transformation during preprocessing.
 
 ![Figure 2: Capital-gain Distribution](outputs/figures/eda_capital_gain_distribution.png)
 
-Figure 3 demonstrates a clear monotonic relationship between education level and the proportion of individuals earning >$50K. As education increases, so does the relative frequency of high-income outcomes. This pattern suggests substantial predictive signal within education-related features.
+Education displays a clear monotonic association with income (Figure 3). The proportion of individuals earning >$50K increases steadily across education levels, suggesting strong predictive signal in both ordinal and categorical representations of education.
 
 ![Figure 3: Education Level vs Income](outputs/figures/eda_education_vs_income.png)
 
-The distribution of hours-per-week (Figure 4) shows strong concentration around the standard 40-hour work week, alongside meaningful dispersion and extreme values. This variation suggests that working hours may contribute to income differentiation but requires careful scaling treatment.
+The distribution of hours-per-week (Figure 4) is concentrated around the standard 40-hour mark but exhibits meaningful dispersion and extreme values, indicating that work intensity may contribute to income differentiation.
 
 ![Figure 4: Hours-per-week Distribution](outputs/figures/eda_work_hours_worked.png)
 
-### 2.3 Data Quality and Modelling Considerations
-Missing values were observed in workclass, occupation, and native-country, affecting approximately 7% of records. These appeared systematic rather than random but were not sufficiently extensive to justify row deletion.
-
-While the agent generated the initial EDA visualisations, numerical summaries and class proportions were manually cross-checked to ensure that graphical interpretations accurately reflected the underlying data before informing preprocessing decisions.
+Missing values were present in workclass, occupation, and native-country, affecting roughly 7% of instances. Their structured appearance suggested that imputation, rather than deletion, would preserve information. Although the agent generated the initial visualisations, numerical summaries and class proportions were manually verified to ensure that interpretations accurately reflected the underlying data prior to finalising preprocessing decisions.
 
 ## 3. Prepare the Data
 
@@ -79,3 +70,42 @@ The initial selection of model families and hyperparameter ranges was proposed b
 
 ![Figure 7: Advanced Model ROC Curve Comparison](outputs/figures/advanced_roc_comparison.png)
 ![Figure 8: HGB Learning Curve](outputs/figures/advanced_learning_curve.png)
+
+## 5. Fine-Tune and Evaluate
+
+The Histogram-based Gradient Boosting (HGB) model was tuned using GridSearchCV with three-fold cross-validation applied exclusively to the training partition. Hyperparameter selection was guided by maximising ROC AUC. Cross-validation was performed entirely within the training data, ensuring that validation and test partitions remained unseen during optimisation. The validation set was subsequently used to confirm the relative ranking of shortlisted models, while the test set was reserved strictly for final performance estimation. This structured approach ensured that performance estimates reflect genuine generalisation rather than accidental data leakage.
+
+Final evaluation on the held-out test data demonstrates strong discriminative ability, as illustrated by the confusion matrix (Figure 9). Performance on the minority (>50K) class reflects a deliberate balance between precision and recall in the context of class imbalance. The model achieves high precision, indicating that predicted high-income classifications are typically correct, while recall remains moderate, reflecting the inherent difficulty of identifying all high-income individuals from cross-sectional demographic variables alone. This trade-off is consistent with the structure of the dataset and the limits of observable features. The relatively small gap between training and cross-validation ROC AUC (≈0.94 vs ≈0.93), shown previously in Section 4 (Figure 8), further indicates that model complexity is controlled and that performance gains are unlikely to be driven by overfitting.
+
+![Figure 9: HGB Confusion Matrix](outputs/figures/advanced_best_confusion_matrix.png)
+
+To better understand the structure of the feature space, Principal Component Analysis (PCA) was conducted on the transformed dataset. The cumulative explained variance plot (Figure 10) shows that the first two principal components account for approximately 28% of total variance, while around ten components are required to reach roughly 75%. This dispersion suggests that predictive information is distributed across multiple interacting dimensions rather than concentrated in a small number of dominant features. In parallel, exploratory KMeans clustering did not produce clean separation aligned with income labels, reinforcing that the classification boundary is not naturally clustered in low-dimensional space. These diagnostics provide further support for the use of supervised ensemble methods capable of modelling complex interactions.
+
+![Figure 10: PCA Cumulative Explained Variance](outputs/figures/structure_pca_variance.png)
+
+The agent-assisted workflow required active verification and correction. The handling of native-country was deliberately revised to a binary “United-States” versus “Other” representation after reviewing category sparsity and overfitting risk from agents' suggestion of having top 3 countries and "Other" as separate categories. Additionally, limitations in automated notebook editing led to the adoption of a modular structure in which agent-generated components were carefully reviewed and further modifications integrated as required. While this introduced additional oversight, it strengthened traceability and ensured explicit validation at each stage of the modelling process.
+
+## 6. Final Conclusions
+
+This project examines binary income classification using the UCI Adult (1994 US Census) dataset. The objective is to predict whether an individual’s annual income exceeds $50,000 based on demographic and employment-related attributes. Such classification problems are common in socioeconomic research and financial risk modelling, where income level serves as a proxy for economic stability.
+
+The workflow combined exploratory data analysis with a structured preprocessing pipeline, including targeted log transformations and categorical encoding. A range of models were evaluated, spanning logistic regression, decision trees, ensemble methods, and a neural network baseline. Performance was assessed primarily using ROC AUC and the F1-score for the minority (>50K) class to ensure robustness under class imbalance.
+
+HistGradientBoostingClassifier achieved the strongest validation performance, with a ROC AUC of 0.9325 and an F1-score of 0.724. Ensemble methods consistently outperformed linear and single-tree approaches, indicating the importance of modelling nonlinear interactions. Exploratory Principal Component Analysis further suggested moderate high-dimensional structure within the feature space. Nevertheless, the age of the dataset and the fixed binary income threshold limit direct contemporary generalisation.
+
+### Model Card Summary: HGB (Histogram-based Gradient Boosting)
+
+#### Intended Use: 
+Binary income classification for structured datasets similar to the UCI Adult sample; suitable for benchmarking and academic modelling.
+
+#### Not Intended For: 
+Contemporary credit, hiring, or policy decisions without retraining on updated and context-specific data.
+
+#### Data Provenance: 
+Contemporary credit, hiring, or policy decisions without retraining on updated and context-specific data.
+
+#### Evaluation Summary:
+Test ROC AUC ≈ 0.93; high precision and moderate recall for >50K class; controlled generalisation gap.
+
+#### Key Caveats
+Test ROC AUC ≈ 0.93; high precision and moderate recall for >50K class; controlled generalisation gap.
