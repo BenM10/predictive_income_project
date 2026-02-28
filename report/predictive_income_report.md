@@ -47,3 +47,35 @@ Missing values were observed in workclass, occupation, and native-country, affec
 
 While the agent generated the initial EDA visualisations, numerical summaries and class proportions were manually cross-checked to ensure that graphical interpretations accurately reflected the underlying data before informing preprocessing decisions.
 
+## 3. Prepare the Data
+
+Preprocessing was implemented using a scikit-learn ColumnTransformer, enabling a modular and fully reproducible transformation pipeline. The dataset was partitioned into training (80%), validation (10%), and test (10%) subsets using stratified sampling on the income target. This preserved the approximately 76/24 class imbalance across splits. All procedures were executed with random_state=42 to ensure consistent experimental replication. The pipeline design ensures that identical transormations can be re-applied in deployment without refitting on unseen data.
+
+Categorical features were processed through a consistent pipeline comprising imputation followed by one-hot encoding. Missing values in workclass, occupation, and native-country were replaced with a constant "Unknown" category, preserving sample size while retaining potential signal from structured absence. Given the dominance of United States observations, native-country was further simplified into a binary distinction between "United-States" and "Other" to reduce sparsity and mitigate overfitting risk.
+
+Numeric variables were treated separately. The heavily skewed capital-gain and capital-loss features were transformed using log(1+x), as motivated by their extreme right-tailed distributions observed during EDA. Remaining numeric features were standardised to ensure comparability for gradient-based models such as logistic regression and neural networks.
+
+To prevent leakage, all preprocessing steps were fitted exclusively on the training data, with learned parameters applied unchanged to validation and test sets. Post-transformation checks confirmed zero missing values and a stable 67-dimensional feature space. Figures 5 and 6 demonstrate that class proportions and age distributions remain consistent across splits, indicating that stratification preserved the underlying data structure.
+
+![Figure 5: Income Distribution Across Splits](outputs/figures/preprocessing_income_proportions.png)
+
+![Figure 6: Age Distribution Across Splits](outputs/figures/preprocessing_age_distribution.png)
+
+The overall preprocessing design, including the modular pipeline architecture and log transformation of skewed capital variables, was initially suggested by the agent. Each component was reviewed prior to execution and validated through dimensionality checks, inspection of transformed outputs, and confirmation that fitting was restricted to the training set.
+
+## 4. Model Exploration and Shortlisting
+
+The modelling stage began with the establishment of clear performance baselines. A dummy classifier, which predicts only the majority class, defined the minimum acceptable benchmark, while logistic regression provided a regularised linear reference model. With L2 regularisation applied to constrain coefficient magnitudes, logistic regression achieved a validation ROC AUC of approximately 0.90. This indicated that a meaningful proportion of the predictive signal could be captured through linear relationships alone and provided a credible benchmark for more flexible models.
+
+To capture potential non-linear interactions, a decision tree was introduced with structural constraints applied via hyperparameter tuning (notably min_samples_leaf). While the single tree increased modelling flexibility, ensemble methods offered superior generalisation. Random Forest and HistGradientBoosting were evaluated using validation-based comparison. Among all candidates, HistGradientBoosting achieved the strongest performance, with a validation ROC AUC of 0.9325. As illustrated in Figure 7, the gradient boosting model consistently dominates alternative approaches across the ROC space.
+
+Importantly, the training ROC AUC (≈0.94) exceeded validation performance only modestly (≈0.93), suggesting controlled model complexity rather than substantial overfitting. This behaviour is further supported by the learning curve shown in Figure 8, where training and cross-validation scores converge smoothly as sample size increases. The iterative nature of boosting, which sequentially corrects residual errors from earlier trees, likely explains its improved discriminative ability relative to single-tree and linear models.
+
+A multi-layer perceptron (MLP) was also evaluated, incorporating L2 regularisation through the alpha parameter. Although the neural network achieved a respectable ROC AUC of approximately 0.91, it did not surpass the ensemble methods. In this structured tabular setting, tree-based ensembles appeared better suited to modelling feature interactions.
+
+Model shortlisting was based primarily on validation ROC AUC and minority-class F1-score. The test set was reserved strictly for final evaluation and remained untouched during model comparison. Feature scaling was applied consistently across all models for pipeline coherence; while tree-based methods do not require scaling, this unified approach simplified experimentation and did not adversely affect performance.
+
+The initial selection of model families and hyperparameter ranges was proposed by the agent tool. These suggestions were reviewed and deliberately constrained before execution, and final selection was determined solely by empirical validation results.
+
+![Figure 7: Advanced Model ROC Curve Comparison](outputs/figures/advanced_roc_comparison.png)
+![Figure 8: HGB Learning Curve](outputs/figures/advanced_learning_curve.png)
