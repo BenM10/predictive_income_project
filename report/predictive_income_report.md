@@ -1,6 +1,8 @@
-# Predictive Income Analysis
+# MSIN0097: Predictive Income Classification Project 
 
+MSIN0097 Predictive Analytics
 Candidate Number: XDHH9
+Final Word Count: 1997
 
 ## Executive Summary
 
@@ -25,19 +27,39 @@ The workflow was designed around the Google Antigravity agent as a collaborator.
 
 Exploratory analysis on the cleaned dataset of 48,842 observations and fourteen primary features to identify structural patterns and modelling risks. Figure 1 illustrates the distribution of the income target, with approximately 76% of individuals earning ≤$50K and 24% earning above this threshold.
 
-![Figure 1: Class Imbalance](outputs/figures/eda_target_distribution.png)
+<div style="text-align:center; width:60%; margin: 0 auto;">
+    <img src="../outputs/figures/eda_target_distribution.png" style="width:100%;">
+    <p style="text-align:left; margin-top:4px;">
+        <strong>Figure 1:</strong> Class Imbalance
+    </p>
+</div>
 
 Several features exhibit distributional characteristics with direct modelling implications. The capital-gain variable is extremely right-skewed (Figure 2): most individuals report zero gains, whilst a small minority exhibit very large values. Without transformation, such heavy tails would disproportionately influence model fitting. This motivated the use of a log(1+x) transformation during preprocessing.
 
-![Figure 2: Capital-gain Distribution](outputs/figures/eda_capital_gain_distribution.png)
+<div style="text-align:center; width:60%; margin: 0 auto;">
+    <img src="../outputs/figures/eda_capital_gain_distribution.png" style="width:100%;">
+    <p style="text-align:left; margin-top:4px;">
+        <strong>Figure 2:</strong> Capital-Gain Distribution
+    </p>
+</div>
 
 Education displays a clear monotonic association with income (Figure 3). The proportion of individuals earning >$50K increases steadily across education levels, suggesting strong predictive signal in both ordinal and categorical representations of education.
 
-![Figure 3: Education Level vs Income](outputs/figures/eda_education_vs_income.png)
+<div style="text-align:center; width:60%; margin: 0 auto;">
+    <img src="../outputs/figures/eda_education_vs_income.png" style="width:100%;">
+    <p style="text-align:left; margin-top:4px;">
+        <strong>Figure 3:</strong> Education vs. Income
+    </p>
+</div>
 
 The distribution of hours-per-week (Figure 4) is concentrated around the standard 40-hour mark but exhibits meaningful dispersion and extreme values, indicating work intensity may contribute to income differentiation.
 
-![Figure 4: Hours-per-week Distribution](outputs/figures/eda_work_hours_worked.png)
+<div style="text-align:center; width:60%; margin: 0 auto;">
+    <img src="../outputs/figures/eda_work_hours_worked.png" style="width:100%;">
+    <p style="text-align:left; margin-top:4px;">
+        <strong>Figure 4:</strong> Hours Worked per Week Distribution
+    </p>
+</div>
 
 Missing values were present in workclass, occupation, and native-country, affecting roughly 7% of instances. Their structured appearance suggested that imputation, rather than deletion, would preserve information. Although the agent generated the initial visualisations, numerical summaries and class proportions were manually verified to ensure interpretations accurately reflected the underlying data prior to finalising preprocessing decisions.
 
@@ -51,9 +73,20 @@ Numeric variables were treated separately. The heavily skewed capital-gain and c
 
 To prevent leakage, all preprocessing steps were fitted exclusively on the training data, with learned parameters applied unchanged to validation and test sets. Post-transformation checks confirmed zero missing values and a stable 67-dimensional feature space. Figures 5 and 6 demonstrate class proportions and age distributions remain consistent across splits, indicating stratification preserved the underlying data structure.
 
-![Figure 5: Income Distribution Across Splits](outputs/figures/preprocessing_income_proportions.png)
+<div style="text-align:center; width:60%; margin: 0 auto;">
+    <img src="../outputs/figures/preprocessing_income_proportions.png" style="width:100%;">
+    <p style="text-align:left; margin-top:4px;">
+        <strong>Figure 5:</strong> Income Distribution Across Splits
+    </p>
+</div>
 
-![Figure 6: Age Distribution Across Splits](outputs/figures/preprocessing_age_distribution.png)
+
+<div style="text-align:center; width:60%; margin: 0 auto;">
+    <img src="../outputs/figures/preprocessing_age_distribution.png" style="width:100%;">
+    <p style="text-align:left; margin-top:4px;">
+        <strong>Figure 6:</strong> Age Distribution Across Splits
+    </p>
+</div>
 
 The overall preprocessing design, including the modular pipeline architecture and log transformation of skewed capital variables, was initially suggested by the agent. Each component was reviewed prior to execution and validated through dimensionality checks, inspection of transformed outputs, and confirmation that fitting was restricted to the training set.
 
@@ -63,11 +96,21 @@ The modelling stage began with the establishment of clear performance baselines.
 
 To capture potential non-linear interactions, a decision tree was introduced with structural constraints applied via hyperparameter tuning (notably min_samples_leaf). Whilst increasing modelling flexibility, ensemble methods offered superior generalisation. Random Forest and HistGradientBoosting were evaluated using validation-based comparison. Among all candidates, HistGradientBoosting achieved the strongest performance, with a validation ROC AUC of 0.9325. As illustrated in Figure 7, the gradient boosting model consistently outperformed alternative approaches.
 
-![Figure 7: Advanced Model ROC Curve Comparison](outputs/figures/advanced_roc_comparison.png)
+<div style="text-align:center; width:60%; margin: 0 auto;">
+    <img src="../outputs/figures/advanced_roc_comparison.png" style="width:100%;">
+    <p style="text-align:left; margin-top:4px;">
+        <strong>Figure 7:</strong> Advanced Model ROC Curve Comparison
+    </p>
+</div>
 
 Importantly, the training ROC AUC (≈0.94) exceeded validation performance only modestly (≈0.93), suggesting controlled model complexity rather than substantial overfitting. This behaviour is further supported by the learning curve shown in Figure 8, where training and cross-validation scores converge smoothly as sample size increases. The iterative nature of boosting, sequentially correcting residual errors from earlier trees, likely explains its improved discriminative ability relative to single-tree and linear models.
 
-![Figure 8: HGB Learning Curve](outputs/figures/advanced_learning_curve.png)
+<div style="text-align:center; width:60%; margin: 0 auto;">
+    <img src="../outputs/figures/advanced_learning_curve.png" style="width:100%;">
+    <p style="text-align:left; margin-top:4px;">
+        <strong>Figure 8:</strong> HGB Learning Curve
+    </p>
+</div>
 
 A multi-layer perceptron (MLP) was also evaluated, incorporating L2 regularisation through the alpha parameter. Although the neural network achieved a respectable ROC AUC of approximately 0.91, it did not surpass the ensemble methods. In this structured tabular setting, tree-based ensembles appeared better suited to modelling feature interactions.
 
@@ -81,11 +124,21 @@ The Histogram-based Gradient Boosting (HGB) model was tuned using GridSearchCV w
 
 Final evaluation on the held-out test data demonstrates strong discriminative ability, illustrated by the confusion matrix (Figure 9). It shows that the model correctly identifies a substantial proportion of high-income individuals whilst maintaining a low false-positive rate, though some high earners remain misclassified due to overlapping demographic characteristics, reflecting the inherent difficulty of identifying all high-income individuals from cross-sectional demographic variables alone. This trade-off is consistent with the structure of the dataset and the limits of observable features. The relatively small gap between training and cross-validation ROC AUC (≈0.94 vs ≈0.93), shown previously in Section 4 (Figure 8), further indicates model complexity is controlled and performance gains are unlikely to be driven by overfitting.
 
-![Figure 9: HGB Confusion Matrix](outputs/figures/advanced_best_confusion_matrix.png)
+<div style="text-align:center; width:60%; margin: 0 auto;">
+    <img src="../outputs/figures/advanced_best_confusion_matrix.png" style="width:100%;">
+    <p style="text-align:left; margin-top:4px;">
+        <strong>Figure 9:</strong> HGB Confusion Matrix
+    </p>
+</div>
 
 To better understand the structure of the feature space, Principal Component Analysis (PCA) was conducted on the transformed dataset. The cumulative explained variance plot (Figure 10) shows the first two principal components account for approximately 28% of total variance, while around ten components are required to reach roughly 75%. This dispersion suggests predictive information is distributed across multiple interacting dimensions rather than concentrated in a small number of dominant features. In parallel, exploratory KMeans clustering did not produce clean separation aligned with income labels, reinforcing that the classification boundary is not naturally clustered in low-dimensional space. These diagnostics provide further support for the use of supervised ensemble methods capable of modelling complex interactions.
 
-![Figure 10: PCA Cumulative Explained Variance](outputs/figures/structure_pca_variance.png)
+<div style="text-align:center; width:60%; margin: 0 auto;">
+    <img src="../outputs/figures/structure_pca_variance.png" style="width:100%;">
+    <p style="text-align:left; margin-top:4px;">
+        <strong>Figure 10:</strong> PCA Cumulative Explained Variance
+    </p>
+</div>
 
 The agent-assisted workflow required active verification and correction. The handling of native-country was deliberately revised to a binary “United-States” versus “Other” representation after reviewing category sparsity and overfitting risk from agents' suggestion of having the top 3 countries and "Other" as separate categories. Additionally, limitations in automated notebook editing led to a modular structure in which agent-generated components were carefully reviewed and further modifications integrated as required. Whilst this introduced additional oversight, it strengthened traceability and ensured explicit validation at each stage of the modelling process.
 
@@ -148,19 +201,51 @@ All agent-generated plans and code were manually inspected before integration. N
 | **Diagnostics** | Include learning curves for bias/variance check. | Accept | Examined gap between train/validation error as data scaled. | Confirmed model generalization and sufficiency of training size. | 06_exploratory_structure.ipynb |
 | **Diagnostics** | Conduct PCA and KMeans exploratory analysis. | Accept | Analyzed explained variance ratios and cluster silhouette scores. | Explored unsupervised data structure for feature insight. | 06_exploratory_structure.ipynb |
 
-![Figure A1: Structural Project Initialisation](outputs/appendix_figures/01_project_initialisation_agent_created_structure.png)
+### Evidence Screenshots
 
-![Figure A2: In-Place Notebook Editing Failure](outputs/appendix_figures/03_agent_struggling_with_notebook_mods_paste_in_big_block.png)
+<div style="text-align:center; width:50%; margin: 0 auto;">
+    <img src="../outputs/appendix_figures/01_project_initialisation_agent_created_structure.png" style="width:100%;">
+    <p style="text-align:left; margin-top:4px;">
+        <strong>Figure A1:</strong> Structural Project Initialisation
+    </p>
+</div>
 
-![Figure A3: Agent-Generated PreProcessing Plan](outputs/appendix_figures/05_asked_for_implementation_plan_agent_created_notebook_for_preprocessing_plan.png)
+<div style="text-align:center; width:50%; margin: 0 auto;">
+    <img src="../outputs/appendix_figures/03_agent_struggling_with_notebook_mods_paste_in_big_block.png" style="width:100%;">
+    <p style="text-align:left; margin-top:4px;">
+        <strong>Figure A2:</strong> In-Place Notebook Editing Failure
+    </p>
+</div>
 
-![Figure A4: Agent Created Advanced Modelling Notebook](outputs/appendix_figures/09_agent_created_advanced_notebook.png)
+<div style="text-align:center; width:50%; margin: 0 auto;">
+    <img src="../outputs/appendix_figures/05_asked_for_implementation_plan_agent_created_preprocessing_plan.png" style="width:100%;">
+    <p style="text-align:left; margin-top:4px;">
+        <strong>Figure A3:</strong> Agent-Generated Preprocessing Plan
+    </p>
+</div>
+
+<div style="text-align:center; width:50%; margin: 0 auto;">
+    <img src="../outputs/appendix_figures/09_agent_created_advanced_notebook.png" style="width:100%;">
+    <p style="text-align:left; margin-top:4px;">
+        <strong>Figure A4:</strong> Agent Created Advanced Modelling Notebook
+    </p>
+</div>
 
 ### Appendix B - Additional Figures
 
-![Figure B1: Structure of Missing Values](outputs/figures/eda_missing_values.png)
+<div style="text-align:center; width:60%; margin: 0 auto;">
+    <img src="../outputs/figures/eda_missing_values.png" style="width:100%;">
+    <p style="text-align:left; margin-top:4px;">
+        <strong>Figure B1:</strong> Structure of Missing Values
+    </p>
+</div>
 
-![Figure B2: Scatter of Data in 2D PCA Subspace](outputs/figures/structure_pca_scatter.png)
+<div style="text-align:center; width:60%; margin: 0 auto;">
+    <img src="../outputs/figures/structure_pca_scatter.png" style="width:100%;">
+    <p style="text-align:left; margin-top:4px;">
+        <strong>Figure B2:</strong> Scatter of Data in 2D PCA Subspace
+    </p>
+</div>
 
 #### Dataset Variable Summary
 
@@ -185,8 +270,8 @@ All agent-generated plans and code were manually inspected before integration. N
 
 ## References
 
-Dua, D. and Graff, C. (2019). *UCI Machine Learning Repository*. Irvine, CA: University of California, School of Information and Computer Science. Available at: https://archive.ics.uci.edu.
+Dua, D. and Graff, C. (2019). *UCI Machine Learning Repository*. Irvine, CA: University of California, School of Information and Computer Science. Available at: https://archive.ics.uci.edu/dataset/2/adult.
 
-Google Antigravity Agent Tool (2026). Agentic IDE using Gemini 3 Pro for execution. Available at: antigravity.google
+Google Antigravity Agent Tool (2026). Agentic IDE using Gemini 3 Pro for execution. Available at: https://www.antigravity.google.
 
 Pedregosa, F. et al. (2011). Scikit-learn: Machine Learning in Python. *Journal of Machine Learning Research*, 12, 2825–2830.
