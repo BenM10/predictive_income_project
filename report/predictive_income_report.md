@@ -1,8 +1,12 @@
 # MSIN0097: Predictive Income Classification Project 
 
-MSIN0097 Predictive Analytics
-Candidate Number: XDHH9
-Final Word Count: 1997
+#### MSIN0097 Predictive Analytics
+
+**Candidate Number:** XDHH9
+
+**Final Word Count:** 1997
+
+**Repo:** https://github.com/BenM10/predictive_income_project
 
 ## Executive Summary
 
@@ -21,7 +25,7 @@ The dataset is imbalanced, with approximately 76% of individuals earning ≤$50K
 
 Several limitations shape the scope of the analysis. The data reflects labour market conditions from 1994 and has limited direct applicability to contemporary contexts. The binary threshold constrains modelling flexibility and prevents regression-based approaches. As Census data is self-reported, measurement error is possible, and the cross-sectional design does not permit causal interpretation.
 
-The workflow was designed around the Google Antigravity agent as a collaborator. The analysis was modularised into six notebooks allowing discrete components to be generated, reviewed, and integrated with minimal modification. Prompts specified evaluation criteria and modelling constraints, and outputs were manually verified through distribution checks and explicit leakage prevention (preprocessing fitted only on training data). Reproducibility was maintained using random_state = 42.
+The workflow was designed around the Google Antigravity agent as a collaborator. The analysis was modularised into six notebooks allowing discrete components to be generated, reviewed, and integrated with minimal modification. Prompts specified evaluation criteria and modelling constraints, and outputs were manually verified through distribution checks and explicit leakage prevention (preprocessing fitted only on training data). Reproducibility was maintained using 'random_state = 42'.
 
 ## 2. Data Exploration and Insights
 
@@ -63,9 +67,9 @@ The distribution of hours-per-week (Figure 4) is concentrated around the standar
 
 Missing values were present in workclass, occupation, and native-country, affecting roughly 7% of instances. Their structured appearance suggested that imputation, rather than deletion, would preserve information. Although the agent generated the initial visualisations, numerical summaries and class proportions were manually verified to ensure interpretations accurately reflected the underlying data prior to finalising preprocessing decisions.
 
-## 3. Prepare the Data
+## 3. Data Preparation
 
-Preprocessing was implemented using a scikit-learn ColumnTransformer, enabling a modular and fully reproducible transformation pipeline. The dataset was partitioned into training (80%), validation (10%), and test (10%) subsets using stratified sampling on the income target. This preserved the approximately 76/24 class imbalance across splits. All procedures were executed with random_state=42 to ensure consistent experimental replication. The pipeline design ensures that identical transormations can be re-applied in deployment without refitting on unseen data.
+Preprocessing was implemented using a scikit-learn ColumnTransformer, enabling a modular and fully reproducible transformation pipeline. The dataset was partitioned into training (80%), validation (10%), and test (10%) subsets using stratified sampling on the income target. This preserved the approximately 76/24 class imbalance across splits. All procedures were executed with 'random_state = 42' to ensure consistent experimental replication. The pipeline design ensures that identical transormations can be re-applied in deployment without refitting on unseen data.
 
 Categorical features were processed through a consistent pipeline comprising imputation followed by one-hot encoding. Missing values in workclass, occupation, and native-country were replaced with a constant "Unknown" category, preserving sample size while retaining potential signal from structured absence. Given the dominance of United States observations, native-country was further simplified into a binary distinction between "United-States" and "Other" to reduce sparsity and mitigate overfitting risk.
 
@@ -267,8 +271,6 @@ All agent-generated plans and code were manually inspected before integration. N
 | income         | Binary Target | Annual income classification (>50K / ≤50K) |
 
 ## Bibliography
-
-## References
 
 Dua, D. and Graff, C. (2019). *UCI Machine Learning Repository*. Irvine, CA: University of California, School of Information and Computer Science. Available at: https://archive.ics.uci.edu/dataset/2/adult.
 
