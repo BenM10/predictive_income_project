@@ -42,7 +42,7 @@ output:
   img {
     display: block;
     margin: 20px auto;
-    max-width: 115%;
+    max-width: 120%;
   }
 </style>
 
@@ -51,7 +51,7 @@ output:
 
 **Candidate Number:** XDHH9
 
-**Final Word Count:** 1992
+**Final Word Count:** 1986
 
 **Git Repository:** <https://github.com/BenM10/predictive_income_project>
 
@@ -86,7 +86,7 @@ Several features exhibit distributional characteristics with direct modelling im
 
 Education displays a clear monotonic association with income (Figure 3). The proportion of individuals earning >$50K increases steadily across education levels, suggesting strong predictive signal in both ordinal and categorical representations of education.
 
-![**Figure 3:** Education vs. Income](eda_education_vs_income.png){width=115%}
+![**Figure 3:** Education vs. Income](eda_education_vs_income.png){width=120%}
 
 The distribution of hours-per-week (Figure 4) is concentrated around the standard 40-hour mark but exhibits meaningful dispersion and extreme values, indicating work intensity may contribute to income differentiation.
 
@@ -144,11 +144,11 @@ The agent-assisted workflow required active verification and correction. The han
 
 ## 6. Final Conclusions
 
-This project examines binary income classification using the UCI Adult (1994 US Census) dataset. The objective is to predict whether an individual’s annual income exceeds $50,000 based on demographic and employment-related attributes. Such classification problems are common in socioeconomic research and financial risk modelling, where income level serves as a proxy for economic stability.
+This project demonstrated that structured, tabular income data can be modelled effectively using ensemble learning methods when evaluation discipline and leakage control are prioritised. While linear models captured substantial signal, Histogram-based Gradient Boosting consistently delivered superior discriminative performance, achieving strong ROC AUC and minority-class F1 scores with minimal evidence of overfitting. The modest generalisation gap between cross-validation and held-out evaluation supports the robustness of the final configuration.
 
-The workflow combined exploratory data analysis with a structured preprocessing pipeline, including targeted log transformations and categorical encoding. A range of models were evaluated, spanning logistic regression, decision trees, ensemble methods, and a neural network baseline. Performance was assessed primarily using ROC AUC and the F1-score for the minority (>50K) class to ensure robustness under class imbalance.
+Exploratory structural analysis further suggested that predictive signal is distributed across multiple interacting features rather than concentrated in a small number of dominant dimensions. This helps explain the relative success of boosting approaches over purely linear baselines.
 
-HistGradientBoostingClassifier achieved the strongest validation performance, with a ROC AUC of 0.9325 and an F1-score of 0.724. Ensemble methods consistently outperformed linear and single-tree approaches, indicating the importance of modelling nonlinear interactions. Exploratory Principal Component Analysis further suggested moderate high-dimensional structure within the feature space. Nevertheless, the age of the dataset and the fixed binary income threshold limit direct contemporary generalisation.
+However, predictive accuracy remains constrained by omitted socioeconomic variables and the fixed binary income threshold. The model captures patterns present in the 1994 Census structure but cannot infer causal relationships or guarantee performance under distributional shift. Future work could incorporate richer geographic or wealth indicators and explore calibration under contemporary data conditions.
 
 ### Model Card Summary: HGB (Histogram-based Gradient Boosting)
 
@@ -167,6 +167,7 @@ Test ROC AUC ~ 0.93; high precision and moderate recall for >50K class; controll
 #### Key Caveats
 Boosting may overfit subtle noise despite cross-validation safeguards.
 
+<div style="break-after:page"></div>
 ## Appendix
 
 ### Appendix A - Agent Usage and Decision Log
@@ -175,41 +176,30 @@ The Antigravity agent was used throughout the project as a structured collaborat
 
 All agent-generated plans and code were manually inspected before integration. Numerical outputs, class distributions, dimensionality checks, and evaluation metrics were cross-validated against independent summaries to confirm correctness. Where inconsistencies arose, adjustments were made and documented. The project’s modular notebook structure supported this process by isolating each analytical stage, making verification more manageable and reducing the risk of compounding errors.
 
-| Stage | Agent Proposal | Our Decision (Accept / Modify / Reject) | Verification Performed | Final Implementation | Evidence Reference |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| **EDA** | Set `na_values='?'` and `skipinitialspace=True` in loader. | Accept | Visual inspection of raw CSV files for leading spaces. | Automated missing value handling during ingestion. | 02_eda.ipynb |
-| **EDA** | Skip first row of `adult.test` file. | Accept | Parsing error logs identified informal footer/header text. | `skiprows=1` applied to test set reader. | 02_eda.ipynb |
-| **EDA** | Use manually defined column names from documentation. | Accept | Cross-referenced missing CSV headers with UCI repository metadata. | Standardized schema applied across all dataset splits. | 02_eda.ipynb |
-| **EDA** | Include semantic column explanations in notebook. | Reject | User verification required prior to documenting feature meanings. | Removed unverified descriptions from early exploratory notebooks. | 02_eda.ipynb |
-| **Repo-Workflow** | Direct in-place editing of notebook cells. | Reject | Verification showed agent claimed edits failed to persist. | Shifted to full-notebook generation to ensure consistency. | 02_eda.ipynb |
-| **Preprocessing** | Normalize income labels by removing trailing periods. | Accept | Found label mismatch ('>50K.' vs '>50K') between splits. | Standardized binary target encoding for classification. | 03_preprocessing.ipynb |
-| **Preprocessing** | Drop `fnlwgt` column from feature set. | Accept | Analyzed feature as census weight rather than predictive attribute. | Excluded non-predictive sampling weights to prevent distortion. | 03_preprocessing.ipynb |
-| **Preprocessing** | Encode categorical missing values as "Unknown". | Accept | Frequency analysis showed missingness was non-random in attributes. | Preserves predictive signal of nulls without imputation bias. | 03_preprocessing.ipynb |
-| **Preprocessing** | Retain both `education` and `education-num` columns. | Accept | Planned ablation study to identify optimal feature representation. | Both features preserved for empirical evidence testing. | 03_preprocessing.ipynb |
-| **Preprocessing** | Apply `log1p` transformation to skewed capital features. | Accept | Distribution analysis confirmed extreme right skew in capital data. | Logarithmic scaling applied to gain and loss features. | 03_preprocessing.ipynb |
-| **Preprocessing** | Defer robust scaling and winsorization steps. | Accept | Baseline model performance monitored for outlier sensitivity. | Minimized complexity until justified by model requirements. | 03_preprocessing.ipynb |
-| **Preprocessing** | Binary binning of `native-country` (US vs Other). | Modify | Cardinality check found extreme imbalance (>90% US-based). | Initial failure refactored into robust `CountryBinner` class. | 03_preprocessing.ipynb |
-| **Modelling** | Apply model-dependent scaling strategy. | Accept | Theoretical check on scale-invariance of tree-based vs. linear. | Scaling only applied to distance/linear model pipelines. | 04_models_baselines.ipynb |
-| **EDA** | High-resolution figure saving with tight bounding. | Accept | Verified publication quality of generated plots in `outputs/`. | Applied `dpi=300` and `bbox_inches='tight'` globally. | 02_eda.ipynb |
-| **EDA** | Create `save_and_show` standardization helper. | Accept | Code review for DRY (Don't Repeat Yourself) compliance. | Centralized plot management for cross-notebook consistency. | 02_eda.ipynb |
-| **Repo-Workflow** | Remove auto-execution logic from `preprocessing.py`. | Accept | Checked module import behavior in downstream notebooks. | Converted script to definition-only module for cleaner imports. | preprocessing.py |
-| **Preprocessing** | Develop dedicated 03_preprocessing.ipynb notebook. | Accept | Verified transform logic and split consistency in isolation. | Separated verification from analysis for better modularity. | 03_preprocessing.ipynb |
-| **Evaluation** | Prioritize F1 and ROC AUC over Accuracy. | Accept | Analyzed target imbalance (24% minority class frequency). | Selected metrics focused on imbalanced discrimination ability. | 04_models_baselines.ipynb |
-| **Modelling** | Use GridSearchCV for Decision Tree pre-pruning. | Accept | Compared cross-validation scores against baseline holdout. | Optimized tree depth and splits via systematic search. | 04_models_baselines.ipynb |
-| **Modelling** | Select HistGradientBoosting for primary ensemble test. | Accept | Benchmarked against XGBoost for speed and null handling. | Implemented histogram-based gradients for final production. | 05_ensembles_and_advanced.ipynb |
-| **Modelling** | Implement Grid Search with `cv=3` and `roc_auc`. | Accept | Computational resource check vs. scoring reliability. | Secured robust tuning for imbalanced class distribution. | 05_ensembles_and_advanced.ipynb |
-| **Diagnostics** | Include learning curves for bias/variance check. | Accept | Examined gap between train/validation error as data scaled. | Confirmed model generalization and sufficiency of training size. | 06_exploratory_structure.ipynb |
-| **Diagnostics** | Conduct PCA and KMeans exploratory analysis. | Accept | Analyzed explained variance ratios and cluster silhouette scores. | Explored unsupervised data structure for feature insight. | 06_exploratory_structure.ipynb |
+#### Agent Decision Log
+
+| Stage | Agent Proposal | Our Decision | Verification |
+| :--- | :--- | :--- | :--- |
+| **EDA** | Set `na_values='?'` and `skipinitialspace=True` in loader. | Accept | Visual inspection of raw CSV files for leading spaces. |
+| **EDA** | Include semantic column explanations in notebook. | Reject | User verification required prior to documenting feature meanings. |
+| **Repo-Workflow** | Direct in-place editing of notebook cells. | Reject | Verification showed agent claimed edits failed to persist. |
+| **Preprocessing** | Encode categorical missing values as "Unknown". | Accept | Frequency analysis showed missingness was non-random in attributes. |
+| **Preprocessing** | Apply `log1p` transformation to skewed capital features. | Accept | Distribution analysis confirmed extreme right skew in capital data. |
+| **Preprocessing** | Binary binning of `native-country` (US vs Other). | Modify | Cardinality check found extreme imbalance (>90% US-based). |
+| **EDA** | Create `save_and_show` standardization helper. | Accept | Code review for DRY (Don't Repeat Yourself) compliance. |
+| **Modelling** | Use GridSearchCV for Decision Tree pre-pruning. | Accept | Compared cross-validation scores against baseline holdout. |
+| **Modelling** | Implement Grid Search with `cv=3` and `roc_auc`. | Accept | Computational resource check vs. scoring reliability. |
+| **Diagnostics** | Conduct PCA and KMeans exploratory analysis. | Accept | Analyzed explained variance ratios and cluster silhouette scores. |
 
 ### Evidence Screenshots
 
-![**Figure A1:** Structural Project Initialisation](01_project_initialisation_agent_created_structure.png){width=105%}
+![**Figure A1:** Structural Project Initialisation](01_project_initialisation_agent_created_structure.png){width=60%}
 
-![**Figure A2:** In-Place Notebook Editing Failure](03_agent_struggling_with_notebook_mods_paste_in_big_block.png){width=105%}
+![**Figure A2:** In-Place Notebook Editing Failure](03_agent_struggling_with_notebook_mods_paste_in_big_block.png){width=60%}
 
-![**Figure A3:** Agent-Generated Preprocessing Plan](05_asked_for_implementation_plan_agent_created_preprocessing_plan.png){width=105%} 
+![**Figure A3:** Agent-Generated Preprocessing Plan](05_asked_for_implementation_plan_agent_created_preprocessing_plan.png){width=60%} 
 
-![**Figure A4:** Agent Created Advanced Modelling Notebook](09_agent_created_advanced_notebook.png){width=105%}
+![**Figure A4:** Agent Created Advanced Modelling Notebook](09_agent_created_advanced_notebook.png){width=60%}
 
 ### Appendix B - Additional Figures
 
@@ -236,6 +226,9 @@ All agent-generated plans and code were manually inspected before integration. N
 | native-country | Categorical | Country of origin |
 | income         | Binary Target | Annual income classification (>50K / <=50K) |
 
+**Git Repository:** <https://github.com/BenM10/predictive_income_project>
+
+<div style="break-after:page"></div>
 ## Bibliography
 
 Dua, D. and Graff, C. (2019). *UCI Machine Learning Repository*. Irvine, CA: University of California, School of Information and Computer Science. Available at: https://archive.ics.uci.edu/dataset/2/adult.
